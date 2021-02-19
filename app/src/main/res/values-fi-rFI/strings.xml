@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NotificationApp</string>
+    <string name="login_username">Tunnus</string>
+    <string name="login_button">Kirjaudu</string>
+    <string name="login_password">Salasana</string>
+    <string name="logout_button">Kirjaudu ulos</string>
+    <string name="cancel_button">Peruuta</string>
+    <string name="add_button">Lisää</string>
+    <string name="edit_button">Muokkaa</string>
+    <string name="delete_button">Poista</string>
+    <string name="login_realname">Etunimi Sukunimi</string>
+    <string name="newuser_button">Luo uusi käyttäjä</string>
+    <string name="modifyuser_button">Käyttäjäasetukset</string>
+</resources>

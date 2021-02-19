@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+
+    <TextView
+        android:id="@+id/txtReminderTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Default title"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtReminderDatetime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="dd.mm.yyyy hh:mm" />
+
+    <TextView
+        android:id="@+id/txtReminderDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Default description" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_weight="1"
+        android:background="?android:attr/listDivider" />
+</LinearLayout>

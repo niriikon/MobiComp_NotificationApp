@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">MobiComp_NotificationApp</string>
+    <string name="app_name">NotificationApp</string>
+    <string name="login_username">Username</string>
+    <string name="login_password">Password</string>
+    <string name="login_realname">Firstname Lastname</string>
+    <string name="login_button">Login</string>
+    <string name="logout_button">Logout</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="add_button">Add</string>
+    <string name="edit_button">Edit</string>
+    <string name="delete_button">Delete</string>
+    <string name="sharedPreference" translatable="false">com.mobicomp_notificationapp</string>
+    <string name="dbFileName" translatable="false">com.mobicomp_notificationapp</string>
+    <string name="newuser_button">Create new user</string>
+    <string name="modifyuser_button">Edit user profile</string>
 </resources>

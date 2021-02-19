@@ -1,4 +1,4 @@
-package com.example.mobicomp_notificationapp
+package com.mobicomp_notificationapp
 
 import org.junit.Test
 
