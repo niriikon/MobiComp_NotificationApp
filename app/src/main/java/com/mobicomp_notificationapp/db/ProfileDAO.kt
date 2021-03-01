@@ -1,15 +1,15 @@
 package com.mobicomp_notificationapp.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.*
 
 @Dao
 interface ProfileDAO {
     @Transaction
     @Insert
     fun insert(profile: ProfileTable): Long
+
+    @Update
+    fun update(profile: ProfileTable)
 
     @Query("SELECT uid FROM profiles WHERE username = :name")
     fun getIdByName(name: String): Int

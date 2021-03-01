@@ -1,15 +1,15 @@
 package com.mobicomp_notificationapp.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.*
 
 @Dao
 interface ReminderDAO {
     @Transaction
     @Insert
     fun insert(reminder: ReminderTable): Long
+
+    @Update
+    fun update(reminder: ReminderTable)
 
     @Query("SELECT id FROM reminders WHERE title = :rem_title")
     fun getIdByTitle(rem_title: String): Int

@@ -40,4 +40,18 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/btnLogout"
         android:background="@color/white" />
+
+    <TextView
+        android:id="@+id/showUsername"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/mainListView"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="119dp"
+        android:layout_marginTop="13dp"
+        android:layout_marginEnd="75dp"
+        android:layout_marginBottom="16dp"
+        android:layout_toStartOf="@+id/btnLogout"
+        android:layout_toEndOf="@+id/btnNewItem"
+        android:text="[No user]" />
 </RelativeLayout>

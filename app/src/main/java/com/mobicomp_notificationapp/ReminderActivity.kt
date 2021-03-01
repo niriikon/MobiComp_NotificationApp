@@ -25,13 +25,13 @@ class ReminderActivity : AppCompatActivity() {
 
         val reminderID = intent.getIntExtra("selectedReminderID", -1)
 
-        if (reminderID != -1) {
+        if (reminderID > 0) {
             AsyncTask.execute {
                 val db = Room.databaseBuilder(
                     applicationContext,
                     AppDB::class.java,
                     getString(R.string.dbFileName)
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 val reminder = db.reminderDAO().getReminder(reminderID)
                 db.close()
 
@@ -74,8 +74,14 @@ class ReminderActivity : AppCompatActivity() {
                     applicationContext,
                     AppDB::class.java,
                     getString(R.string.dbFileName)
-                ).build()
-                val uuid = db.reminderDAO().insert(reminderItem).toInt()
+                ).fallbackToDestructiveMigration().build()
+                if (reminderID != -1) {
+                    reminderItem.id = reminderID
+                    db.reminderDAO().update(reminderItem)
+                }
+                else {
+                    val uuid = db.reminderDAO().insert(reminderItem).toInt()
+                }
                 db.close()
             }
             finish()
@@ -89,7 +95,7 @@ class ReminderActivity : AppCompatActivity() {
                     applicationContext,
                     AppDB::class.java,
                     "com.mobicomp_notificationapp"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 val uuid = db.reminderDAO().delete(reminderID)
                 db.close()
             }

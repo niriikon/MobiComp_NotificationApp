@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.AdapterView
 import android.widget.ListView
 import android.widget.Toast
@@ -11,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.room.Room
 import com.mobicomp_notificationapp.databinding.ActivityMainBinding
 import com.mobicomp_notificationapp.db.AppDB
+import com.mobicomp_notificationapp.db.ProfileTable
 import com.mobicomp_notificationapp.db.ReminderTable
 
 class MainActivity : AppCompatActivity() {
@@ -53,6 +56,12 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
+        binding.showUsername.setOnClickListener {
+            startActivity(
+                Intent(applicationContext, ProfileActivity::class.java)
+            )
+        }
+
         listView.setOnItemLongClickListener(AdapterView.OnItemLongClickListener { _, _, position, id ->
             val selectedReminder = listView.adapter.getItem(position) as ReminderTable
             startActivity(Intent(this, ReminderActivity::class.java).apply {putExtra("selectedReminderID", selectedReminder.id)})
@@ -66,8 +75,13 @@ class MainActivity : AppCompatActivity() {
         refreshListView()
     }
 
+    private fun checkLoginStatus() {
+        val task = CheckLoginStatus()
+        task.execute()
+    }
+
     private fun refreshListView() {
-        var task = LoadReminderEntries()
+        val task = LoadReminderEntries()
         task.execute()
     }
 
@@ -75,7 +89,7 @@ class MainActivity : AppCompatActivity() {
         override fun doInBackground(vararg params: String?): List<ReminderTable> {
             val db = Room.databaseBuilder(
                 applicationContext, AppDB::class.java, getString(R.string.dbFileName)
-            ).build()
+            ).fallbackToDestructiveMigration().build()
             val reminderItems = db.reminderDAO().getAll()
             db.close()
             return reminderItems
@@ -95,12 +109,56 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /*
     private fun checkLoginStatus() {
         val userID = applicationContext.getSharedPreferences(getString(R.string.sharedPreference),
         Context.MODE_PRIVATE).getInt("UserID", -1)
 
-        if (userID == 0) {
+        if (userID != -1) {
+            AsyncTask.execute {
+                val db = Room.databaseBuilder(
+                        applicationContext, AppDB::class.java, getString(R.string.dbFileName)
+                ).fallbackToDestructiveMigration().build()
+                val profile = db.profileDAO().getProfile(userID)
+                binding.showUsername.text = profile.username
+            }
+        }
+        else {
             startActivity(Intent(applicationContext, LoginActivity::class.java))
         }
     }
+    */
+
+    inner class CheckLoginStatus: AsyncTask<String?, String?, ProfileTable>() {
+
+        override fun doInBackground(vararg params: String?): ProfileTable {
+            val userID = applicationContext.getSharedPreferences(getString(R.string.sharedPreference),
+                    Context.MODE_PRIVATE).getInt("UserID", -1)
+
+            if (userID != -1) {
+                val db = Room.databaseBuilder(
+                        applicationContext, AppDB::class.java, getString(R.string.dbFileName)
+                ).fallbackToDestructiveMigration().build()
+                val profile = db.profileDAO().getProfile(userID)
+                db.close()
+                return profile
+            }
+            else {
+                startActivity(Intent(applicationContext, LoginActivity::class.java))
+                return ProfileTable(uid=null, username="", password="", realname="")
+            }
+        }
+
+        override fun onPostExecute(profile: ProfileTable) {
+            if (profile.uid != null) {
+                binding.showUsername.text = profile.username
+            }
+            else {
+                binding.showUsername.text = "No user"
+            }
+        }
+    }
+
+
+
 }

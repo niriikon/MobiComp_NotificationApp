@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.content.Intent
 import android.os.AsyncTask
+import android.util.Log
 import android.view.View
 import androidx.room.Room
 import com.mobicomp_notificationapp.databinding.ActivityProfileBinding
@@ -20,7 +21,7 @@ class ProfileActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        var userID = applicationContext.getSharedPreferences(
+        val userID = applicationContext.getSharedPreferences(
             getString(R.string.sharedPreference),
             Context.MODE_PRIVATE
         ).getInt("UserID", -1)
@@ -32,7 +33,7 @@ class ProfileActivity : AppCompatActivity() {
                     applicationContext,
                     AppDB::class.java,
                     getString(R.string.dbFileName)
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 val user = db.profileDAO().getProfile(userID)
                 db.close()
 
@@ -63,16 +64,26 @@ class ProfileActivity : AppCompatActivity() {
                 realname = binding.txtEditUserRealname.text.toString(),
                 password = binding.txtEditUserPassword.text.toString()
             )
+            // TODO: Check for unique username (or change ProfileTable.username to have UNIQUE constraint)
+            Log.d("DB actions", "Attempting to insert " + userItem.username + ", " + userItem.realname + ", " + userItem.password)
 
             AsyncTask.execute {
                 val db = Room.databaseBuilder(
                     applicationContext,
                     AppDB::class.java,
                     getString(R.string.dbFileName)
-                ).build()
-                val uuid = db.profileDAO().insert(userItem).toInt()
+                ).fallbackToDestructiveMigration().build()
+
+                if (userID != -1) {
+                    userItem.uid = userID
+                    db.profileDAO().update(userItem)
+                }
+                else {
+                    val uuid = db.profileDAO().insert(userItem).toInt()
+                }
                 db.close()
             }
+            Log.d("DB actions", "Inserted row")
             finish()
 
             startActivity(Intent(applicationContext, LoginActivity::class.java))
@@ -84,7 +95,7 @@ class ProfileActivity : AppCompatActivity() {
                     applicationContext,
                     AppDB::class.java,
                     "com.mobicomp_notificationapp"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 val uuid = db.profileDAO().delete(userID)
                 db.close()
             }
