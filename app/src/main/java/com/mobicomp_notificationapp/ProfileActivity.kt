@@ -11,7 +11,6 @@ import androidx.room.Room
 import com.mobicomp_notificationapp.databinding.ActivityProfileBinding
 import com.mobicomp_notificationapp.db.AppDB
 import com.mobicomp_notificationapp.db.ProfileTable
-import java.util.*
 
 class ProfileActivity : AppCompatActivity() {
     private lateinit var binding: ActivityProfileBinding
@@ -21,13 +20,14 @@ class ProfileActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        // Logged in user
         val userID = applicationContext.getSharedPreferences(
             getString(R.string.sharedPreference),
             Context.MODE_PRIVATE
         ).getInt("UserID", -1)
 
+        // If logged in, edit current user.
         if (userID != -1) {
-            // valitse muokkaamiseen/poistamiseen
             AsyncTask.execute {
                 val db = Room.databaseBuilder(
                     applicationContext,
@@ -44,8 +44,10 @@ class ProfileActivity : AppCompatActivity() {
 
             binding.btnEditUserAccept.setText(R.string.edit_button)
             binding.btnEditUserDelete.visibility = View.VISIBLE
-        } else {
-            // Valitse napit lisäämiseen
+        }
+
+        // No user logged in; add new user.
+        else {
             binding.btnEditUserAccept.setText(R.string.add_button)
             binding.btnEditUserDelete.visibility = View.GONE
         }
@@ -54,18 +56,18 @@ class ProfileActivity : AppCompatActivity() {
             startActivity(Intent(applicationContext, LoginActivity::class.java))
         }
 
+        // If user exists, update instance. Otherwise insert a new one.
         binding.btnEditUserAccept.setOnClickListener {
             if (binding.txtEditUsername.text.isEmpty() || binding.txtEditUserRealname.text.isEmpty() || binding.txtEditUserPassword.text.isEmpty()) {
                 return@setOnClickListener
             }
             val userItem = ProfileTable(
-                null,
-                username = binding.txtEditUsername.text.toString(),
-                realname = binding.txtEditUserRealname.text.toString(),
-                password = binding.txtEditUserPassword.text.toString()
+                    null,
+                    username = binding.txtEditUsername.text.toString(),
+                    realname = binding.txtEditUserRealname.text.toString(),
+                    password = binding.txtEditUserPassword.text.toString()
             )
-            // TODO: Check for unique username (or change ProfileTable.username to have UNIQUE constraint)
-            Log.d("DB actions", "Attempting to insert " + userItem.username + ", " + userItem.realname + ", " + userItem.password)
+            Log.d("DB actions", "Attempting to insert/update " + userItem.username + ", " + userItem.realname + ", " + userItem.password)
 
             AsyncTask.execute {
                 val db = Room.databaseBuilder(
@@ -74,33 +76,46 @@ class ProfileActivity : AppCompatActivity() {
                     getString(R.string.dbFileName)
                 ).fallbackToDestructiveMigration().build()
 
-                if (userID != -1) {
-                    userItem.uid = userID
-                    db.profileDAO().update(userItem)
-                }
-                else {
-                    val uuid = db.profileDAO().insert(userItem).toInt()
+                // Check is user with the same username already exists.
+                val users = db.profileDAO().getUsers()
+                if (userItem.username in users) {
+
+                    // TODO: Toast cannot be used within another thread, must be handled differently
+                    //val toast = Toast.makeText(applicationContext, "Username already taken", Toast.LENGTH_LONG)
+                    //toast.show()
+
+                    Log.d("DB actions", "Username already taken, insert aborted")
+                } else {
+                    if (userID != -1) {
+                        userItem.uid = userID
+                        db.profileDAO().update(userItem)
+                    } else {
+                        val uuid = db.profileDAO().insert(userItem).toInt()
+                    }
                 }
                 db.close()
             }
-            Log.d("DB actions", "Inserted row")
+
+            Log.d("DB actions", "Inserted/Updated row")
             finish()
 
             startActivity(Intent(applicationContext, LoginActivity::class.java))
         }
 
+        // Delete user and set login status to -1
         binding.btnEditUserDelete.setOnClickListener {
             AsyncTask.execute {
                 val db = Room.databaseBuilder(
-                    applicationContext,
-                    AppDB::class.java,
-                    "com.mobicomp_notificationapp"
+                        applicationContext,
+                        AppDB::class.java,
+                        "com.mobicomp_notificationapp"
                 ).fallbackToDestructiveMigration().build()
                 val uuid = db.profileDAO().delete(userID)
                 db.close()
             }
-            finish()
+            applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putInt("UserID", -1).apply()
 
+            finish()
             startActivity(Intent(applicationContext, LoginActivity::class.java))
         }
     }

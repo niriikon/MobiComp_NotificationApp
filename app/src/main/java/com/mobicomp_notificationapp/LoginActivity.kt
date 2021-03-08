@@ -24,23 +24,7 @@ class LoginActivity : AppCompatActivity() {
         binding.progressBar.visibility = View.GONE
 
         binding.btnLogin.setOnClickListener {
-            /*
-            val task = AttemptLogin()
-            task.execute(binding.txtUserName.text.toString(), binding.txtPassword.text.toString())
-            val userID = applicationContext.getSharedPreferences("com.mobicomp_notificationapp", Context.MODE_PRIVATE).getInt("UserID", -1)
-            if (userID != -1){
-                startActivity (
-                    Intent(applicationContext, MainActivity::class.java)
-                )
-            }
-            else {
-                val toast = Toast.makeText(this, "Invalid credentials", Toast.LENGTH_LONG)
-                toast.show()
-            } */
-
-            val task = AttemptLogin()
-            task.execute(binding.txtUserName.text.toString(), binding.txtPassword.text.toString())
-            // val userID = applicationContext.getSharedPreferences("com.mobicomp_notificationapp", Context.MODE_PRIVATE).getInt("UserID", -1)
+            attemptLogin(binding.txtUserName.text.toString(), binding.txtPassword.text.toString())
         }
 
         binding.btnNewUser.setOnClickListener {
@@ -50,7 +34,28 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        val id = applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getInt("UserID", -1)
+        if (id > 0) {
+            startActivity(
+                Intent(applicationContext, MainActivity::class.java)
+            )
+        }
+    }
+
+    private fun attemptLogin(name: String, pass: String) {
+        val task = AttemptLogin()
+        task.execute(name, pass)
+    }
+
     inner class AttemptLogin: AsyncTask<String?, String?, ProfileTable>() {
+        /*
+        * Asynchronous operations for checking login credentials and updating
+        * user id to login status.
+        * */
+
         private var user: String? = ""
         private var pass: String? = ""
 
@@ -58,6 +63,7 @@ class LoginActivity : AppCompatActivity() {
             binding.progressBar.visibility = View.VISIBLE
         }
 
+        // Get userID by given username. If user does not exist, return blank instance.
         override fun doInBackground(vararg params: String?): ProfileTable {
             val db = Room.databaseBuilder(
                     applicationContext, AppDB::class.java, getString(R.string.dbFileName)
@@ -70,7 +76,9 @@ class LoginActivity : AppCompatActivity() {
 
                 if (user != null && pass != null) {
                     Log.d("Login info", "User: " + user + "  pass: " + pass)
+
                     val id = db.profileDAO().getIdByName(user!!)
+
                     Log.d("Login info", "UserID is: " + id.toString())
                     if (id == 0) {
                         Log.d("Login info", "No such user")
@@ -91,6 +99,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        // Check credentials and update login status with userID
         override fun onPostExecute(profile: ProfileTable) {
             var userID = -1
             if (profile.uid != null) {
@@ -111,7 +120,7 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
             else {
-                Log.d("Login info", "No user found")
+                Log.d("Login info", "User not found")
                 val toast = Toast.makeText(applicationContext, "Invalid credentials", Toast.LENGTH_LONG)
                 toast.show()
             }
@@ -119,43 +128,4 @@ class LoginActivity : AppCompatActivity() {
             binding.progressBar.visibility = View.GONE
         }
     }
-
-    /*
-    private fun attemptLogin(user: String, pass: String): Int {
-        // Placeholder until proper login function
-        Log.d("Login info", "User: " + user + "  pass: " + pass)
-
-        /*
-        AsyncTask.execute {
-            val db = Room.databaseBuilder(
-                applicationContext,
-                AppDB::class.java,
-                getString(R.string.dbFileName)
-            ).fallbackToDestructiveMigration().build()
-            val profile = db.profileDAO().getProfile(db.profileDAO().getIdByName(user))
-            db.close()
-            Log.d("Login DB info", "User: " + profile.username + "  pass: " + profile.password)
-            Log.d("Login comparison", "User: " + (user == profile.username).toString() + "  pass: " + (pass == profile.password).toString())
-            if (profile.username == user && profile.password == pass) {
-                //retVal = profile.uid!!
-                return profile.uid
-            }
-            else return -1
-        }
-         */
-        var retval = -1
-        val task = RetrieveLoginProfile()
-        val profile = task.execute(user)
-        if (profile != null) {
-            Log.d("Login DB info", "User: " + profile.username + "  pass: " + profile.password)
-            Log.d("Login comparison", "User: " + (user == profile.username).toString() + "  pass: " + (pass == profile.password).toString())
-            if (profile.uid != null) {
-                if (profile.username == user && profile.password == pass) {
-                    retval = profile.uid!!
-                }
-            }
-            return retval
-        }
-    }
-     */
 }

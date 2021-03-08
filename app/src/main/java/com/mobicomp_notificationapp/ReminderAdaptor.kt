@@ -8,6 +8,10 @@ import android.widget.BaseAdapter
 import com.mobicomp_notificationapp.databinding.ReminderItemBinding
 import com.mobicomp_notificationapp.db.ReminderTable
 
+/*
+* Example taken from exercises.
+* */
+
 class ReminderAdaptor(context: Context, private val list:List<ReminderTable>): BaseAdapter() {
 
     private val inflater: LayoutInflater =

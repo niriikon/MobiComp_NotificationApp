@@ -4,11 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.widget.AdapterView
 import android.widget.ListView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.room.Room
 import com.mobicomp_notificationapp.databinding.ActivityMainBinding
@@ -27,8 +24,8 @@ class MainActivity : AppCompatActivity() {
         listView = binding.mainListView
         listView.isLongClickable = true
 
+        // Check status and update list.
         checkLoginStatus()
-
         refreshListView()
 
         /*
@@ -39,6 +36,8 @@ class MainActivity : AppCompatActivity() {
             )
         }
         */
+
+        // Assign login status to -1, signifying status of no logged in users.
         binding.btnLogout.setOnClickListener {
             applicationContext.getSharedPreferences(
                 getString(R.string.sharedPreference),
@@ -50,18 +49,21 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
+        // Add new reminder. No extra information given.
         binding.btnNewItem.setOnClickListener {
             startActivity(
                 Intent(applicationContext, ReminderActivity::class.java)
             )
         }
 
+        // Edit username.
         binding.showUsername.setOnClickListener {
             startActivity(
                 Intent(applicationContext, ProfileActivity::class.java)
             )
         }
 
+        // Select longpressed item for edit. Reminders ID given as extra information.
         listView.setOnItemLongClickListener(AdapterView.OnItemLongClickListener { _, _, position, id ->
             val selectedReminder = listView.adapter.getItem(position) as ReminderTable
             startActivity(Intent(this, ReminderActivity::class.java).apply {putExtra("selectedReminderID", selectedReminder.id)})
@@ -85,6 +87,9 @@ class MainActivity : AppCompatActivity() {
         task.execute()
     }
 
+    /*
+    * Get reminder items for the listview. Example taken from exercise.
+    * */
     inner class LoadReminderEntries : AsyncTask<String?, String?, List<ReminderTable>>() {
         override fun doInBackground(vararg params: String?): List<ReminderTable> {
             val db = Room.databaseBuilder(
@@ -110,25 +115,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     /*
-    private fun checkLoginStatus() {
-        val userID = applicationContext.getSharedPreferences(getString(R.string.sharedPreference),
-        Context.MODE_PRIVATE).getInt("UserID", -1)
-
-        if (userID != -1) {
-            AsyncTask.execute {
-                val db = Room.databaseBuilder(
-                        applicationContext, AppDB::class.java, getString(R.string.dbFileName)
-                ).fallbackToDestructiveMigration().build()
-                val profile = db.profileDAO().getProfile(userID)
-                binding.showUsername.text = profile.username
-            }
-        }
-        else {
-            startActivity(Intent(applicationContext, LoginActivity::class.java))
-        }
-    }
-    */
-
+    * Check login status from shared preferences.
+    * -1 signifies no logged in users. If user is logged in, show username at top bar.
+    * */
     inner class CheckLoginStatus: AsyncTask<String?, String?, ProfileTable>() {
 
         override fun doInBackground(vararg params: String?): ProfileTable {
