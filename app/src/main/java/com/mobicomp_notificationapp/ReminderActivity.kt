@@ -80,9 +80,9 @@ class ReminderActivity : AppCompatActivity() {
                 }
                 db.close()
             }
-            finish()
 
             startActivity(Intent(applicationContext, MainActivity::class.java))
+            finish()
         }
 
         // Delete reminder.
@@ -96,9 +96,9 @@ class ReminderActivity : AppCompatActivity() {
                 val uuid = db.reminderDAO().delete(reminderID)
                 db.close()
             }
-            finish()
 
             startActivity(Intent(applicationContext, MainActivity::class.java))
+            finish()
         }
     }
 }

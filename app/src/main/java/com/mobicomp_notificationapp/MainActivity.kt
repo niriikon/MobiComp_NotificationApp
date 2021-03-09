@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(
                 Intent(applicationContext, LoginActivity::class.java)
             )
+            finish()
         }
 
         // Add new reminder. No extra information given.
@@ -134,6 +135,7 @@ class MainActivity : AppCompatActivity() {
             }
             else {
                 startActivity(Intent(applicationContext, LoginActivity::class.java))
+                finish()
                 return ProfileTable(uid=null, username="", password="", realname="")
             }
         }

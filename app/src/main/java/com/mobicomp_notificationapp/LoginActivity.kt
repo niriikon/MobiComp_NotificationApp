@@ -42,6 +42,7 @@ class LoginActivity : AppCompatActivity() {
             startActivity(
                 Intent(applicationContext, MainActivity::class.java)
             )
+            //finish()
         }
     }
 
@@ -112,6 +113,7 @@ class LoginActivity : AppCompatActivity() {
                     startActivity (
                             Intent(applicationContext, MainActivity::class.java)
                     )
+                    finish()
                 }
                 else {
                     Log.d("Login info", "Invalid password")

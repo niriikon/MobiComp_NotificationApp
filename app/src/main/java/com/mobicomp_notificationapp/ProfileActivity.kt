@@ -54,6 +54,7 @@ class ProfileActivity : AppCompatActivity() {
 
         binding.btnEditUserCancel.setOnClickListener {
             startActivity(Intent(applicationContext, LoginActivity::class.java))
+            finish()
         }
 
         // If user exists, update instance. Otherwise insert a new one.
@@ -97,9 +98,9 @@ class ProfileActivity : AppCompatActivity() {
             }
 
             Log.d("DB actions", "Inserted/Updated row")
-            finish()
 
             startActivity(Intent(applicationContext, LoginActivity::class.java))
+            finish()
         }
 
         // Delete user and set login status to -1
@@ -115,8 +116,8 @@ class ProfileActivity : AppCompatActivity() {
             }
             applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putInt("UserID", -1).apply()
 
-            finish()
             startActivity(Intent(applicationContext, LoginActivity::class.java))
+            finish()
         }
     }
 }
