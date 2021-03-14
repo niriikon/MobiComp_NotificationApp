@@ -78,24 +78,25 @@ class ProfileActivity : AppCompatActivity() {
 
                 // Check is user with the same username already exists.
                 val users = db.profileDAO().getUsers()
-                if (userItem.username in users) {
 
-                    // TODO: Toast cannot be used within another thread, must be handled differently
-                    //val toast = Toast.makeText(applicationContext, "Username already taken", Toast.LENGTH_LONG)
-                    //toast.show()
-
-                    Log.d("DB actions", "Username already taken, insert aborted")
+                if (userID != -1) {
+                    userItem.id = userID
+                    db.profileDAO().update(userItem)
                 } else {
-                    if (userID != -1) {
-                        userItem.id = userID
-                        db.profileDAO().update(userItem)
-                    } else {
+                    if (userItem.username in users) {
+
+                        // TODO: Toast cannot be used within another thread, must be handled differently
+                        //val toast = Toast.makeText(applicationContext, "Username already taken", Toast.LENGTH_LONG)
+                        //toast.show()
+
+                        Log.d("DB actions", "Username already taken, insert aborted")
+                    }
+                    else {
                         val uuid = db.profileDAO().insert(userItem).toInt()
                     }
                 }
                 db.close()
             }
-
             Log.d("DB actions", "Inserted/Updated row")
 
             startActivity(Intent(applicationContext, LoginActivity::class.java))
