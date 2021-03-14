@@ -77,7 +77,7 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         binding.txtEditReminderTime.isClickable=true
 
         binding.txtEditReminderDate.setOnClickListener {
-            // TODO: Set DatePickerDialog to user firstDayOfWeek=Calendar.MONDAY somehow (or by Locale)
+            // TODO: Set DatePickerDialog to use firstDayOfWeek=Calendar.MONDAY somehow (or by Locale)
             reminderCalendar = GregorianCalendar.getInstance()
             if (binding.txtEditReminderDate.text.toString() != "") {
                 val dateparts = binding.txtEditReminderDate.text.split(".")
@@ -118,7 +118,6 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                 val reminder = db.reminderDAO().getReminder(reminderID)
                 db.close()
 
-                // TODO: Refactor properly, now just testing
                 binding.txtEditReminderMsg.setText(reminder.message)
                 binding.txtEditReminderDate.setText(dateformatter.format(reminder.reminder_time))
                 binding.txtEditReminderTime.setText(timeformatter.format(reminder.reminder_time))
@@ -160,13 +159,11 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
             val dateparts = binding.txtEditReminderDate.text.split(".")
             val timeparts = binding.txtEditReminderTime.text.split(":")
 
-            // TODO: Refactor properly, now just testing
             val reminderItem = ReminderTable(
                     null,
                     profile_id = applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getInt("UserID", -1),
                     message = binding.txtEditReminderMsg.text.toString(),
                     reminder_time =  GregorianCalendar(dateparts[2].toInt(), dateparts[1].toInt() - 1, dateparts[0].toInt(), timeparts[0].toInt(), timeparts[1].toInt(), 0).getTime(),
-                    //reminder_time = date_time,
                     creation_time = Calendar.getInstance().time,
                     reminder_seen = 0,
                     location_x = binding.txtEditReminderX.text.toString(),
@@ -211,52 +208,17 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         }
     }
 
+    // Put selected date to EditText
     override fun onDateSet(picker: DatePicker?, year: Int, month: Int, day: Int) {
-        //val msg = String.format(day.toString(), ".", month.toString(), ".", year.toString())
         val msg = "$day.${month + 1}.$year"
-        Log.d("MobiComp_DATE", msg)
+        //Log.d("MobiComp_DATE", msg)
         binding.txtEditReminderDate.setText(msg)
     }
 
+    // Put selected time to EditText
     override fun onTimeSet(picker: TimePicker?, hour: Int, minute: Int) {
-        //val msg = String.format(hour.toString(), ":", minute.toString())
         val msg = "$hour:$minute"
-        Log.d("MobiComp_TIME", msg)
+        //Log.d("MobiComp_TIME", msg)
         binding.txtEditReminderTime.setText(msg)
     }
 }
-
-/*
-class TimePickerFragment : DialogFragment(), TimePickerDialog.OnTimeSetListener {
-    override fun onCreateDialog(savedInstanceState: Bundle): Dialog {
-        // Use the current time as the default values for the picker
-        val c = Calendar.getInstance()
-        val hour = c.get(Calendar.HOUR_OF_DAY)
-        val minute = c.get(Calendar.MINUTE)
-
-        // Create a new instance of TimePickerDialog and return it
-        return TimePickerDialog(activity, this, hour, minute, DateFormat.is24HourFormat(activity))
-    }
-
-    override fun onTimeSet(view: TimePicker, hourOfDay: Int, minute: Int) {
-        // Do something with the time chosen by the user
-    }
-}
-
-class DatePickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener {
-    override fun onCreateDialog(savedInstanceState: Bundle): Dialog {
-        // Use the current date as the default date in the picker
-        val c = Calendar.getInstance()
-        val year = c.get(Calendar.YEAR)
-        val month = c.get(Calendar.MONTH)
-        val day = c.get(Calendar.DAY_OF_MONTH)
-
-        // Create a new instance of DatePickerDialog and return it
-        return DatePickerDialog(activity, this, year, month, day)
-    }
-
-    override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {
-        // Do something with the date chosen by the user
-    }
-}
-*/
