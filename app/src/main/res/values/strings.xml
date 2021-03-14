@@ -13,4 +13,11 @@
     <string name="dbFileName" translatable="false">com.mobicomp_notificationapp</string>
     <string name="newuser_button">Create new user</string>
     <string name="modifyuser_button">Edit user profile</string>
+    <string-array name="icons_array">
+        <item>Default</item>
+        <item>Important</item>
+        <item>Sport</item>
+        <item>Study</item>
+        <item>Work</item>
+    </string-array>
 </resources>

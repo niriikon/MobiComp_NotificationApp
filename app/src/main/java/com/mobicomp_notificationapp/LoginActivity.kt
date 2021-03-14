@@ -42,7 +42,7 @@ class LoginActivity : AppCompatActivity() {
             startActivity(
                 Intent(applicationContext, MainActivity::class.java)
             )
-            //finish()
+            finish()
         }
     }
 
@@ -73,7 +73,7 @@ class LoginActivity : AppCompatActivity() {
             try {
                 this.user = params[0]
                 this.pass = params[1]
-                var profile = ProfileTable(uid=null, username="", password="", realname="")
+                var profile = ProfileTable(id=null, username="", password="", realname="")
 
                 if (user != null && pass != null) {
                     Log.d("Login info", "User: " + user + "  pass: " + pass)
@@ -96,18 +96,18 @@ class LoginActivity : AppCompatActivity() {
             }
             catch (e: IndexOutOfBoundsException) {
                 Log.d("Login info", "Not enough parameters given.")
-                return ProfileTable(uid=null, username="", password="", realname="")
+                return ProfileTable(id=null, username="", password="", realname="")
             }
         }
 
         // Check credentials and update login status with userID
         override fun onPostExecute(profile: ProfileTable) {
             var userID = -1
-            if (profile.uid != null) {
+            if (profile.id != null) {
                 Log.d("Login DB info", "User: " + profile.username + "  pass: " + profile.password)
                 Log.d("Login comparison", "User: " + (this.user == profile.username).toString() + "  pass: " + (this.pass == profile.password).toString())
                 if (profile.username == this.user && profile.password == this.pass) {
-                    userID = profile.uid!!
+                    userID = profile.id!!
                     binding.progressBar.visibility = View.GONE
                     applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putInt("UserID", userID).apply()
                     startActivity (

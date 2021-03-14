@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName="profiles")
 data class ProfileTable(
-    @PrimaryKey(autoGenerate=true) var uid: Int?,
+    @PrimaryKey(autoGenerate=true) var id: Int?,
     @ColumnInfo(name="username") var username:String,
     @ColumnInfo(name="password") var password:String,
     @ColumnInfo(name="realname") var realname:String

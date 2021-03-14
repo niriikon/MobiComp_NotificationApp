@@ -7,8 +7,9 @@
     android:layout_height="match_parent"
     tools:context=".ReminderActivity">
 
+
     <EditText
-        android:id="@+id/txtEditReminderTitle"
+        android:id="@+id/txtEditReminderMsg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -16,38 +17,68 @@
         android:inputType="textPersonName"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.172" />
+        app:layout_constraintTop_toTopOf="@+id/iconSpinner"
+        app:layout_constraintVertical_bias="0.1" />
+
+    <EditText
+        android:id="@+id/txtEditReminderTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="HH:MM"
+        android:inputType="time"
+        android:focusableInTouchMode="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderMsg"
+        app:layout_constraintVertical_bias="0.08" />
 
     <EditText
         android:id="@+id/txtEditReminderDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="dd.mm.yyy"
+        android:hint="dd.mm.yyyy"
         android:inputType="date"
+        android:focusableInTouchMode="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderTitle"
-        app:layout_constraintVertical_bias="0.1" />
+        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderTime"
+        app:layout_constraintVertical_bias="0.08" />
 
     <EditText
-        android:id="@+id/txtEditReminderDesc"
+        android:id="@+id/txtEditReminderX"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Description"
-        android:inputType="textLongMessage"
+        android:hint="Location X"
+        android:inputType="textShortMessage"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtEditReminderDate"
         app:layout_constraintVertical_bias="0.1" />
+
+    <EditText
+        android:id="@+id/txtEditReminderY"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Location Y"
+        android:inputType="textShortMessage"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderX"
+        app:layout_constraintVertical_bias="0.125" />
 
     <Button
         android:id="@+id/btnEditReminderAccept"
@@ -59,7 +90,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.733"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderDesc"
+        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderY"
         app:layout_constraintVertical_bias="0.500" />
 
     <Button
@@ -72,7 +103,7 @@
         app:layout_constraintEnd_toStartOf="@+id/btnEditReminderAccept"
         app:layout_constraintHorizontal_bias="0.524"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderDesc"
+        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderY"
         app:layout_constraintVertical_bias="0.500" />
 
     <Button
@@ -87,4 +118,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.023" />
+
+    <ImageView
+        android:id="@+id/imgSelectIcon"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnEditReminderDelete"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.02"
+        app:layout_constraintHorizontal_bias="0.7"
+        app:srcCompat="@drawable/ic_launcher_foreground" />
+
+    <Spinner
+        android:id="@+id/iconSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/imgSelectIcon"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imgSelectIcon"
+        app:layout_constraintVertical_bias="0.03" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

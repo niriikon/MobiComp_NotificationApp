@@ -39,7 +39,6 @@ class ProfileActivity : AppCompatActivity() {
 
                 binding.txtEditUsername.setText(user.username)
                 binding.txtEditUserRealname.setText(user.realname)
-                //binding.txtEditUserPassword.setText(user.password)
             }
 
             binding.btnEditUserAccept.setText(R.string.edit_button)
@@ -88,7 +87,7 @@ class ProfileActivity : AppCompatActivity() {
                     Log.d("DB actions", "Username already taken, insert aborted")
                 } else {
                     if (userID != -1) {
-                        userItem.uid = userID
+                        userItem.id = userID
                         db.profileDAO().update(userItem)
                     } else {
                         val uuid = db.profileDAO().insert(userItem).toInt()

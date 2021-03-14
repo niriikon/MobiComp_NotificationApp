@@ -11,15 +11,15 @@ interface ProfileDAO {
     @Update
     fun update(profile: ProfileTable)
 
-    @Query("SELECT uid FROM profiles WHERE username = :name")
+    @Query("SELECT id FROM profiles WHERE username = :name")
     fun getIdByName(name: String): Int
 
-    @Query("SELECT * FROM profiles WHERE uid = :uid")
+    @Query("SELECT * FROM profiles WHERE id = :uid")
     fun getProfile(uid: Int): ProfileTable
 
     @Query("SELECT username FROM profiles")
     fun getUsers(): List<String>
 
-    @Query("DELETE FROM profiles WHERE uid = :uid")
+    @Query("DELETE FROM profiles WHERE id = :uid")
     fun delete(uid: Int)
 }

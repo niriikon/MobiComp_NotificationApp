@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.widget.AdapterView
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
@@ -27,15 +28,6 @@ class MainActivity : AppCompatActivity() {
         // Check status and update list.
         checkLoginStatus()
         refreshListView()
-
-        /*
-        findViewById<Button>(R.id.btnLogout).setOnClickListener {
-            applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putInt("LoginStatus", 0).apply()
-            startActivity (
-                Intent(applicationContext, LoginActivity::class.java)
-            )
-        }
-        */
 
         // Assign login status to -1, signifying status of no logged in users.
         binding.btnLogout.setOnClickListener {
@@ -93,11 +85,19 @@ class MainActivity : AppCompatActivity() {
     * */
     inner class LoadReminderEntries : AsyncTask<String?, String?, List<ReminderTable>>() {
         override fun doInBackground(vararg params: String?): List<ReminderTable> {
-            val db = Room.databaseBuilder(
-                applicationContext, AppDB::class.java, getString(R.string.dbFileName)
-            ).fallbackToDestructiveMigration().build()
-            val reminderItems = db.reminderDAO().getAll()
-            db.close()
+            val userID = applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getInt("UserID", -1)
+            var reminderItems = emptyList<ReminderTable>()
+            if (userID > 0) {
+                val db = Room.databaseBuilder(
+                    applicationContext, AppDB::class.java, getString(R.string.dbFileName)
+                ).fallbackToDestructiveMigration().build()
+                //val reminderItems = db.reminderDAO().getAll()
+                reminderItems = db.reminderDAO().getRemindersByUser(userID)
+                db.close()
+            }
+            else {
+                Log.d("DB operations", "No user signed in, cannot load reminder entries.")
+            }
             return reminderItems
         }
 
@@ -134,18 +134,18 @@ class MainActivity : AppCompatActivity() {
                 return profile
             }
             else {
-                startActivity(Intent(applicationContext, LoginActivity::class.java))
-                finish()
-                return ProfileTable(uid=null, username="", password="", realname="")
+                return ProfileTable(id=null, username="", password="", realname="")
             }
         }
 
         override fun onPostExecute(profile: ProfileTable) {
-            if (profile.uid != null) {
+            if (profile.id != null) {
                 binding.showUsername.text = profile.username
             }
             else {
                 binding.showUsername.text = "No user"
+                startActivity(Intent(applicationContext, LoginActivity::class.java))
+                finish()
             }
         }
     }
