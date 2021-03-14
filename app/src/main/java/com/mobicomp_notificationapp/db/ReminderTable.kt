@@ -16,6 +16,7 @@ import java.util.*
 data class ReminderTable(
     @PrimaryKey(autoGenerate=true) var id: Int?,
     @ColumnInfo(name="profile_id") var profile_id: Int,
+    @ColumnInfo(name="workmanager_uuid") var workmanager_uuid: UUID?,
     @ColumnInfo(name="message") var message:String,
     @ColumnInfo(name="location_x") var location_x:String?,
     @ColumnInfo(name="location_y") var location_y:String?,

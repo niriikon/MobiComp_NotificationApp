@@ -11,13 +11,13 @@ class IconSpinnerAdaptor : Activity(), AdapterView.OnItemSelectedListener {
         binding = ActivityReminderBinding.inflate(layoutInflater)
 
         when (parent.getItemAtPosition(pos)) {
-            "Default" -> binding.imgSelectIcon.setImageResource(R.drawable.ic_baseline_add_circle_24)
-            "Important" -> binding.imgSelectIcon.setImageResource(R.drawable.ic_baseline_add_circle_24)
+            "Default" -> binding.imgSelectIcon.setImageResource(R.drawable.default_icon)
+            "Important" -> binding.imgSelectIcon.setImageResource(R.drawable.important_icon)
             "Sport" -> binding.imgSelectIcon.setImageResource(R.drawable.sport_icon)
             "Study" -> binding.imgSelectIcon.setImageResource(R.drawable.study_icon)
             "Work" -> binding.imgSelectIcon.setImageResource(R.drawable.work_icon)
             else -> {
-                binding.imgSelectIcon.setImageResource(R.drawable.ic_baseline_add_circle_24)
+                binding.imgSelectIcon.setImageResource(R.drawable.default_icon)
             }
         }
     }

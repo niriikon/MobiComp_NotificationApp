@@ -1,19 +1,15 @@
 package com.mobicomp_notificationapp
 
 import android.app.DatePickerDialog
-import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.text.InputType
-import android.text.format.DateFormat
-import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.DialogFragment
 import androidx.room.Room
 import com.mobicomp_notificationapp.databinding.ActivityReminderBinding
 import com.mobicomp_notificationapp.db.AppDB
@@ -158,17 +154,19 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
 
             val dateparts = binding.txtEditReminderDate.text.split(".")
             val timeparts = binding.txtEditReminderTime.text.split(":")
+            reminderCalendar = GregorianCalendar(dateparts[2].toInt(), dateparts[1].toInt() - 1, dateparts[0].toInt(), timeparts[0].toInt(), timeparts[1].toInt(), 0)
 
             val reminderItem = ReminderTable(
-                    null,
-                    profile_id = applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getInt("UserID", -1),
-                    message = binding.txtEditReminderMsg.text.toString(),
-                    reminder_time =  GregorianCalendar(dateparts[2].toInt(), dateparts[1].toInt() - 1, dateparts[0].toInt(), timeparts[0].toInt(), timeparts[1].toInt(), 0).getTime(),
-                    creation_time = Calendar.getInstance().time,
-                    reminder_seen = 0,
-                    location_x = binding.txtEditReminderX.text.toString(),
-                    location_y = binding.txtEditReminderY.text.toString(),
-                    icon = binding.imgSelectIcon.getTag() as Int?
+                null,
+                profile_id = applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getInt("UserID", -1),
+                message = binding.txtEditReminderMsg.text.toString(),
+                reminder_time =  reminderCalendar.getTime(),
+                creation_time = Calendar.getInstance().time,
+                reminder_seen = 0,
+                location_x = binding.txtEditReminderX.text.toString(),
+                location_y = binding.txtEditReminderY.text.toString(),
+                icon = binding.imgSelectIcon.getTag() as Int?,
+                workmanager_uuid = null
             )
 
             AsyncTask.execute {
@@ -179,10 +177,27 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                 ).fallbackToDestructiveMigration().build()
                 if (reminderID != -1) {
                     reminderItem.id = reminderID
+                    if (reminderCalendar.getTime() == db.reminderDAO().getTime(reminderID)) {
+                        reminderItem.workmanager_uuid = db.reminderDAO().getNotificationUUID(reminderID)
+                    }
+                    else {
+                        MainActivity.cancelReminder(applicationContext, db.reminderDAO().getNotificationUUID(reminderID))
+                        reminderItem.workmanager_uuid = MainActivity.setReminderWithWorkManager(
+                            applicationContext,
+                            reminderID,
+                            reminderCalendar.timeInMillis,
+                            reminderItem.message,
+                            "Upcoming event:",
+                            reminderItem.icon)
+                    }
                     db.reminderDAO().update(reminderItem)
                 }
                 else {
                     val uuid = db.reminderDAO().insert(reminderItem).toInt()
+                    db.reminderDAO().setNotificationUUID(uuid,
+                        MainActivity.setReminderWithWorkManager(applicationContext,
+                            uuid,
+                            reminderCalendar.timeInMillis, reminderItem.message, "Upcoming event:", reminderItem.icon))
                 }
                 db.close()
             }
@@ -199,6 +214,7 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                     AppDB::class.java,
                     "com.mobicomp_notificationapp"
                 ).fallbackToDestructiveMigration().build()
+                MainActivity.cancelReminder(applicationContext, db.reminderDAO().getNotificationUUID(reminderID))
                 val uuid = db.reminderDAO().delete(reminderID)
                 db.close()
             }
@@ -217,7 +233,13 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
 
     // Put selected time to EditText
     override fun onTimeSet(picker: TimePicker?, hour: Int, minute: Int) {
-        val msg = "$hour:$minute"
+        val msg: String
+        if (minute < 10) {
+            msg = "$hour:0$minute"
+        }
+        else {
+            msg = "$hour:$minute"
+        }
         //Log.d("MobiComp_TIME", msg)
         binding.txtEditReminderTime.setText(msg)
     }

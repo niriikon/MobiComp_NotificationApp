@@ -39,7 +39,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/btnLogout"
-        android:background="@color/white" />
+        android:layout_above="@+id/btnShowAll"
+        android:background="@color/white" >
+
+    </ListView>
 
     <TextView
         android:id="@+id/showUsername"
@@ -47,11 +50,49 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/mainListView"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="119dp"
-        android:layout_marginTop="13dp"
-        android:layout_marginEnd="75dp"
-        android:layout_marginBottom="16dp"
-        android:layout_toStartOf="@+id/btnLogout"
-        android:layout_toEndOf="@+id/btnNewItem"
-        android:text="[No user]" />
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="false"
+        android:layout_marginTop="16dp"
+        android:text="[No user]"
+        android:textAlignment="viewStart" />
+
+    <Button
+        android:id="@+id/btnShowAll"
+        android:layout_width="104dp"
+        android:layout_height="54dp"
+        android:layout_alignParentBottom="true"
+        android:backgroundTint="@color/teal_700"
+        android:insetLeft="6dp"
+        android:insetTop="4dp"
+        android:insetBottom="4dp"
+        android:text="Show all"
+        android:textSize="12sp" />
+
+    <Button
+        android:id="@+id/btnShowTimed"
+        android:layout_width="104dp"
+        android:layout_height="54dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:backgroundTint="@color/teal_700"
+        android:insetTop="4dp"
+        android:insetBottom="4dp"
+        android:text="Show occurred"
+        android:textSize="12sp" />
+
+    <Button
+        android:id="@+id/btnShowByArea"
+        android:layout_width="104dp"
+        android:layout_height="54dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:backgroundTint="@color/teal_700"
+        android:insetTop="4dp"
+        android:insetRight="6dp"
+        android:insetBottom="4dp"
+        android:text="Show nearby"
+        android:textSize="12sp" />
+
+
+
 </RelativeLayout>
