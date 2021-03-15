@@ -39,9 +39,7 @@ class LoginActivity : AppCompatActivity() {
 
         val id = applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getInt("UserID", -1)
         if (id > 0) {
-            startActivity(
-                Intent(applicationContext, MainActivity::class.java)
-            )
+            // startActivity(Intent(applicationContext, MainActivity::class.java))
             finish()
         }
     }
@@ -111,7 +109,7 @@ class LoginActivity : AppCompatActivity() {
                     binding.progressBar.visibility = View.GONE
                     applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putInt("UserID", userID).apply()
                     startActivity (
-                            Intent(applicationContext, MainActivity::class.java)
+                        Intent(applicationContext, MainActivity::class.java)
                     )
                     finish()
                 }

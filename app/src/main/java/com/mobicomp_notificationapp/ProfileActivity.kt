@@ -52,7 +52,7 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         binding.btnEditUserCancel.setOnClickListener {
-            startActivity(Intent(applicationContext, LoginActivity::class.java))
+            // startActivity(Intent(applicationContext, LoginActivity::class.java))
             finish()
         }
 
@@ -99,7 +99,7 @@ class ProfileActivity : AppCompatActivity() {
             }
             Log.d("DB actions", "Inserted/Updated row")
 
-            startActivity(Intent(applicationContext, LoginActivity::class.java))
+            // startActivity(Intent(applicationContext, LoginActivity::class.java))
             finish()
         }
 
@@ -116,7 +116,7 @@ class ProfileActivity : AppCompatActivity() {
             }
             applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putInt("UserID", -1).apply()
 
-            startActivity(Intent(applicationContext, LoginActivity::class.java))
+            // startActivity(Intent(applicationContext, LoginActivity::class.java))
             finish()
         }
     }

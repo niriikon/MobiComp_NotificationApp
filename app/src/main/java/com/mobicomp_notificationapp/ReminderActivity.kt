@@ -140,7 +140,7 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         }
 
         binding.btnEditReminderCancel.setOnClickListener {
-            startActivity(Intent(applicationContext, MainActivity::class.java))
+            // startActivity(Intent(applicationContext, MainActivity::class.java))
             finish()
         }
 
@@ -210,7 +210,8 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                 db.close()
             }
 
-            startActivity(Intent(applicationContext, MainActivity::class.java))
+            // Finish current activity, and therefore return to MainActivity?
+            // startActivity(Intent(applicationContext, MainActivity::class.java))
             finish()
         }
 
@@ -227,7 +228,7 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                 db.close()
             }
 
-            startActivity(Intent(applicationContext, MainActivity::class.java))
+            // startActivity(Intent(applicationContext, MainActivity::class.java))
             finish()
         }
     }
