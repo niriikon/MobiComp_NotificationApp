@@ -270,7 +270,7 @@ class MainActivity : AppCompatActivity() {
                 .setContentTitle(title)
                 .setContentText(message)
                 .setContentIntent(pendingIntent)
-                .setSmallIcon(R.drawable.calendar_icon_nopadding)
+                .setSmallIcon(R.drawable.calendar_notification)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(message))
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)

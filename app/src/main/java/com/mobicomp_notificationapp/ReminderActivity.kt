@@ -181,12 +181,16 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                         reminderItem.workmanager_uuid = db.reminderDAO().getNotificationUUID(reminderID)
                     }
                     else {
+                        var parsedMessage = "${reminderItem.message} on ${dateformatter.format(reminderCalendar.getTime())} ${timeformatter.format(reminderCalendar.getTime())}"
+                        if (reminderItem.location_x != null && reminderItem.location_y != null) {
+                            parsedMessage = "$parsedMessage at ${reminderItem.location_x}, ${reminderItem.location_y}"
+                        }
                         MainActivity.cancelReminder(applicationContext, db.reminderDAO().getNotificationUUID(reminderID))
                         reminderItem.workmanager_uuid = MainActivity.setReminderWithWorkManager(
                             applicationContext,
                             reminderID,
                             reminderCalendar.timeInMillis,
-                            reminderItem.message,
+                            parsedMessage,
                             "Upcoming event:",
                             reminderItem.icon)
                     }
@@ -194,10 +198,14 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                 }
                 else {
                     val uuid = db.reminderDAO().insert(reminderItem).toInt()
+                    var parsedMessage = "${reminderItem.message} on ${dateformatter.format(reminderCalendar.getTime())} ${timeformatter.format(reminderCalendar.getTime())}"
+                    if (reminderItem.location_x != null && reminderItem.location_y != null) {
+                        parsedMessage = "$parsedMessage at ${reminderItem.location_x}, ${reminderItem.location_y}"
+                    }
                     db.reminderDAO().setNotificationUUID(uuid,
                         MainActivity.setReminderWithWorkManager(applicationContext,
                             uuid,
-                            reminderCalendar.timeInMillis, reminderItem.message, "Upcoming event:", reminderItem.icon))
+                            reminderCalendar.timeInMillis, parsedMessage, "Upcoming event:", reminderItem.icon))
                 }
                 db.close()
             }

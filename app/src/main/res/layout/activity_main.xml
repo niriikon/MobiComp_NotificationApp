@@ -66,7 +66,7 @@
         android:insetTop="4dp"
         android:insetBottom="4dp"
         android:text="Show all"
-        android:textSize="12sp" />
+        android:textSize="11sp" />
 
     <Button
         android:id="@+id/btnShowTimed"
@@ -78,7 +78,7 @@
         android:insetTop="4dp"
         android:insetBottom="4dp"
         android:text="Show occurred"
-        android:textSize="12sp" />
+        android:textSize="11sp" />
 
     <Button
         android:id="@+id/btnShowByArea"
@@ -91,7 +91,7 @@
         android:insetRight="6dp"
         android:insetBottom="4dp"
         android:text="Show nearby"
-        android:textSize="12sp" />
+        android:textSize="11sp" />
 
 
 
