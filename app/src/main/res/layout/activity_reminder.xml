@@ -138,10 +138,10 @@
         android:layout_height="72dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/btnEditReminderDelete"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.02"
-        app:layout_constraintHorizontal_bias="0.7"
+        app:layout_constraintVertical_bias="0.04"
+        app:layout_constraintHorizontal_bias="0.85"
         app:srcCompat="@drawable/ic_launcher_foreground" />
 
     <Spinner
@@ -154,5 +154,32 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imgSelectIcon"
         app:layout_constraintVertical_bias="0.03" />
+
+    <Switch
+        android:id="@+id/tglLocation"
+        android:layout_width="105dp"
+        android:layout_height="wrap_content"
+        android:text="Location"
+        android:checked="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.13"
+        app:layout_constraintVertical_bias="0.125" />
+
+    <Switch
+        android:id="@+id/tglTime"
+        android:layout_width="105dp"
+        android:layout_height="wrap_content"
+        android:text="Timing"
+        android:checked="true"
+        app:layout_constraintTop_toBottomOf="@+id/tglLocation"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/tglLocation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintVertical_bias="0.01" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

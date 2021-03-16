@@ -2,8 +2,6 @@ package com.mobicomp_notificationapp
 
 import android.Manifest
 import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.AsyncTask
@@ -25,6 +23,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
@@ -45,6 +44,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var geofencingClient: GeofencingClient
     private lateinit var locations: List<LocationTable>
+    private var fenceCircle: Circle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +57,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         geofencingClient = LocationServices.getGeofencingClient(this)
 
+        applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putString("locationSelected", "none").apply()
         val uid = applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getInt("UserID", -1)
         AsyncTask.execute {
             val db = Room.databaseBuilder(
@@ -155,11 +156,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     MarkerOptions()
                             .position(latlng)
                             .title("New location")
-                            .snippet("<press to save>")
+                            .snippet("<press to save or select>")
             )
             marker.tag = "new_marker"
             marker.showInfoWindow()
-            map.addCircle(CircleOptions().center(latlng)
+            fenceCircle?.remove()
+            fenceCircle = map.addCircle(CircleOptions().center(latlng)
                     .strokeColor(Color.argb(70, 175, 175, 175))
                     .fillColor(Color.argb(40, 175, 175, 175))
                     .radius(GEOFENCE_RADIUS.toDouble())
@@ -180,9 +182,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 var location_id = -1L
 
                 val builder = AlertDialog.Builder(this)
-                builder.setTitle("Save location")
+                builder.setTitle("Save location?")
+                builder.setMessage("You can save current location for later use or select an unsaved location for single use")
                 val txtName = EditText(this)
                 txtName.setInputType(InputType.TYPE_CLASS_TEXT)
+                txtName.hint = "Location name"
                 builder.setView(txtName)
                 builder.setPositiveButton("Save") { _, _ ->
                     AsyncTask.execute {
@@ -203,6 +207,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                         longitude = markerLng
                                 )
                                 location_id = db.locationDAO().insert(locationItem)
+                                this@MapsActivity.runOnUiThread(java.lang.Runnable {
+                                    it.title = txtName.text.toString()
+                                    it.snippet = "${it.position.latitude}, ${it.position.longitude}"
+                                    it.tag = location_id.toString()
+                                    it.showInfoWindow()
+                                })
                             } else {
                                 // Name already in use
                                 this@MapsActivity.runOnUiThread(java.lang.Runnable {
@@ -220,11 +230,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                         db.close()
                     }
-                    // update marker
-                    it.title = txtName.text.toString()
-                    it.snippet = "${it.position.latitude}, ${it.position.longitude}"
-                    it.tag = location_id.toString()
-                    it.showInfoWindow()
+                }
+                builder.setNeutralButton("Select") {dialog, _ ->
+                    applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putString("locationSelected", "raw").apply()
+                    applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putString("locationName", it.title).apply()
+                    applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putFloat("locationLatitude", it.position.latitude.toFloat()).apply()
+                    applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putFloat("locationLongitude", it.position.latitude.toFloat()).apply()
+                    applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putInt("locationId", 0).apply()
+                    dialog.dismiss()
+                    finish()
                 }
                 builder.setNegativeButton("Cancel") { dialog, _ ->
                     dialog.cancel()
@@ -236,8 +250,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 val builder = AlertDialog.Builder(this)
                 builder.setTitle(it.title)
-                builder.setMessage("Delete location?")
-                builder.setPositiveButton("Delete") { _, _ ->
+                builder.setMessage("Select location?")
+                builder.setPositiveButton("Select") { _, _ ->
+                    applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putString("locationSelected", "db").apply()
+                    applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putString("locationName", it.title).apply()
+                    applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putFloat("locationLatitude", it.position.latitude.toFloat()).apply()
+                    applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putFloat("locationLongitude", it.position.latitude.toFloat()).apply()
+                    applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).edit().putInt("locationId", it.tag.toString().toInt()).apply()
+                    finish()
+                }
+                builder.setNeutralButton("Delete") {dialog, _ ->
                     AsyncTask.execute {
                         val db = Room.databaseBuilder(
                                 applicationContext,
@@ -249,6 +271,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                     // update marker
                     it.remove()
+
+                    dialog.dismiss()
                 }
                 builder.setNegativeButton("Cancel") { dialog, _ ->
                     dialog.cancel()
@@ -259,7 +283,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         map.setOnMarkerClickListener {
             //it.showInfoWindow()
-            map.addCircle(CircleOptions().center(it.position)
+            fenceCircle?.remove()
+            fenceCircle = map.addCircle(CircleOptions().center(it.position)
                     .strokeColor(Color.argb(70, 175, 175, 175))
                     .fillColor(Color.argb(40, 175, 175, 175))
                     .radius(GEOFENCE_RADIUS.toDouble())
@@ -268,52 +293,4 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
     }
-
-    /*
-    // Example from Google Maps API documentation
-    internal inner class InfoWindowActivity : AppCompatActivity(),
-            GoogleMap.OnInfoWindowClickListener,
-            OnMapReadyCallback {
-        override fun onMapReady(googleMap: GoogleMap) {
-            val uid = applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getInt("UserID", -1)
-            AsyncTask.execute {
-                val db = Room.databaseBuilder(
-                    applicationContext,
-                    AppDB::class.java,
-                    getString(R.string.dbFileName)
-                ).fallbackToDestructiveMigration().build()
-                val locations = db.locationDAO().getLocationsByUser(uid)
-                db.close()
-
-                var latlng: LatLng
-                for (location in locations) {
-                    latlng = LatLng(location.latitude, location.longitude)
-                    googleMap.addMarker(
-                            MarkerOptions()
-                                    .position(latlng)
-                                    .title(location.name)
-                                    .snippet("${location.latitude}, ${location.longitude}")
-                    )
-                }
-            }
-            // Add markers to the map and do other map setup.
-            // map.addMarker(
-            //     MarkerOptions().position(latlng).title("New location").snippet("<press to save>")
-            // ).showInfoWindow()
-            // Set a listener for info window events.
-            googleMap.setOnInfoWindowClickListener(this)
-        }
-
-        override fun onInfoWindowClick(marker: Marker) {
-            val mapEditIntent = Intent(applicationContext, MarkerActivity::class.java)
-            mapEditIntent.putExtra("latlng", marker.position)
-            mapEditIntent.putExtra("id", marker.id)
-            startActivity(mapEditIntent)
-        }
-
-        override fun onMarkerClick(marker: Marker) {
-            marker.showInfoWindow()
-        }
-    }*/
-
 }

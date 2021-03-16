@@ -33,6 +33,37 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         val view = binding.root
         setContentView(view)
 
+        /*
+        / Does not work, maybe just skip?
+        / isFocusable breaks txtEditReminderLocation and color change looses the background
+        / Might as well have the values remain in the background and just save state change
+        binding.tglLocation.setOnCheckedChangeListener { _, isChecked: Boolean ->
+            if (isChecked) {
+                binding.txtEditReminderLocation.isFocusable = true
+                binding.txtEditReminderLocation.setBackgroundColor(0)
+            }
+            else {
+                binding.txtEditReminderLocation.isFocusable = false
+                binding.txtEditReminderLocation.setBackgroundColor(getResources().getColor(R.color.grey_300))
+            }
+        }
+
+        binding.tglTime.setOnCheckedChangeListener { _, isChecked: Boolean ->
+            if (isChecked) {
+                binding.txtEditReminderDate.isFocusable = true
+                binding.txtEditReminderDate.setBackgroundColor(getResources().getColor(R.color.white))
+                binding.txtEditReminderTime.isFocusable = true
+                binding.txtEditReminderTime.setBackgroundColor(getResources().getColor(R.color.white))
+            }
+            else {
+                binding.txtEditReminderDate.isFocusable = false
+                binding.txtEditReminderDate.setBackgroundColor(getResources().getColor(R.color.grey_300))
+                binding.txtEditReminderTime.isFocusable = false
+                binding.txtEditReminderTime.setBackgroundColor(getResources().getColor(R.color.grey_300))
+            }
+        }
+        */
+
         val spinner = binding.iconSpinner
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, resources.getStringArray(R.array.icons_array))
         spinner.adapter = adapter
@@ -143,6 +174,8 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         }
 
         binding.imgOpenMaps.setOnClickListener {
+            binding.txtEditReminderLocation.setText("")
+            binding.txtLocationInfo.text = ""
             startActivity(Intent(applicationContext, MapsActivity::class.java))
         }
 
@@ -289,7 +322,17 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
     override fun onResume() {
         super.onResume()
 
-        binding.txtLocationInfo.text = ""
+        val locSel = applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getString("locationSelected", "none")
+        if (locSel == "raw") {
+            binding.txtEditReminderLocation.setText("")
+            val parsedLocation = "${applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getFloat("locationLatitude", 0F)}, ${applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getFloat("locationLongitude", 0F)}"
+            binding.txtLocationInfo.text = parsedLocation
+        }
+        else if (locSel == "db") {
+            binding.txtEditReminderLocation.setText(applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getString("locationName", ""))
+            val parsedLocation = "${applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getFloat("locationLatitude", 0F)}, ${applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getFloat("locationLongitude", 0F)}"
+            binding.txtLocationInfo.text = parsedLocation
+        }
 
         locations = listOf<LocationTable>()
         locationNames = mutableListOf()
@@ -334,7 +377,7 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         else {
             msg = "$hour:$minute"
         }
-        //Log.d("MobiComp_TIME", msg)
+        Log.d("MobiComp_TIME", msg)
         binding.txtEditReminderTime.setText(msg)
     }
 }
