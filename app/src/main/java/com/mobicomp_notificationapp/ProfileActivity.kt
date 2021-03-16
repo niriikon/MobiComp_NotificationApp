@@ -10,6 +10,7 @@ import android.view.View
 import androidx.room.Room
 import com.mobicomp_notificationapp.databinding.ActivityProfileBinding
 import com.mobicomp_notificationapp.db.AppDB
+import com.mobicomp_notificationapp.db.LocationTable
 import com.mobicomp_notificationapp.db.ProfileTable
 
 class ProfileActivity : AppCompatActivity() {

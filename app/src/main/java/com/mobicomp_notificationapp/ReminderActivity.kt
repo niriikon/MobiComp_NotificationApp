@@ -7,12 +7,14 @@ import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.room.Room
 import com.mobicomp_notificationapp.databinding.ActivityReminderBinding
 import com.mobicomp_notificationapp.db.AppDB
+import com.mobicomp_notificationapp.db.LocationTable
 import com.mobicomp_notificationapp.db.ReminderTable
 import java.text.SimpleDateFormat
 import java.util.*
@@ -21,6 +23,8 @@ import java.util.*
 class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     private lateinit var binding: ActivityReminderBinding
     private lateinit var reminderCalendar: Calendar
+    private lateinit var locations: List<LocationTable>
+    private lateinit var locationNames: MutableList<String>
     private val dateformatter = SimpleDateFormat("dd.MM.yyyy")
     private val timeformatter = SimpleDateFormat("HH:mm")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,6 +71,37 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
             }
         }
 
+        locations = listOf<LocationTable>()
+        locationNames = mutableListOf()
+        val locationAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            locationNames)
+        binding.txtEditReminderLocation.setAdapter(locationAdapter)
+
+        AsyncTask.execute {
+            val db = Room.databaseBuilder(
+                applicationContext,
+                AppDB::class.java,
+                getString(R.string.dbFileName)
+            ).fallbackToDestructiveMigration().build()
+            val uid = applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getInt("UserID", -1)
+            locations = db.locationDAO().getLocationsByUserSorted(uid)
+            locationNames = db.locationDAO().getNames(uid)
+            db.close()
+            locationAdapter.clear()
+            locationAdapter.addAll(locationNames)
+            locationAdapter.notifyDataSetChanged()
+            /*
+            this@ReminderActivity.runOnUiThread(java.lang.Runnable {
+                locationAdapter.clear()
+                locationAdapter.addAll(locations)
+                locationAdapter.notifyDataSetChanged()
+            })
+            */
+        }
+
+
         binding.txtEditReminderDate.inputType = InputType.TYPE_NULL
         binding.txtEditReminderTime.inputType = InputType.TYPE_NULL
         binding.txtEditReminderDate.isClickable=true
@@ -98,6 +133,19 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                     true).show()
         }
 
+        binding.txtEditReminderLocation.setOnItemClickListener { parent: AdapterView<*>?, view: View?, position: Int, id: Long ->
+            val itemIndex = locationNames.indexOf(parent?.getItemAtPosition(position).toString())
+            if (itemIndex >= 0) {
+                val parsedLocation = "${locations[itemIndex].latitude}, ${locations[itemIndex].longitude}"
+                Log.d("MobiComp_LOCATION", "parsedLocation: $parsedLocation")
+                binding.txtLocationInfo.text = parsedLocation
+            }
+        }
+
+        binding.imgOpenMaps.setOnClickListener {
+            startActivity(Intent(applicationContext, MapsActivity::class.java))
+        }
+
         //Log.d("intent URI", intent.toUri(0))
 
         // Use intent extra for knowing if user wants to add a reminder, or edit existing one.
@@ -115,10 +163,14 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                 db.close()
 
                 binding.txtEditReminderMsg.setText(reminder.message)
-                binding.txtEditReminderDate.setText(dateformatter.format(reminder.reminder_time))
-                binding.txtEditReminderTime.setText(timeformatter.format(reminder.reminder_time))
-                binding.txtEditReminderX.setText(reminder.location_x)
-                binding.txtEditReminderY.setText(reminder.location_y)
+                if (reminder.reminder_time != null) {
+                    binding.txtEditReminderDate.setText(dateformatter.format(reminder.reminder_time!!))
+                    binding.txtEditReminderTime.setText(timeformatter.format(reminder.reminder_time!!))
+                }
+                if (reminder.latitude != null && reminder.longitude != null) {
+                    val parseLocation = "${reminder.latitude}, ${reminder.longitude}"
+                    binding.txtLocationInfo.setText(parseLocation)
+                }
                 val icon_id = reminder.icon
                 if (icon_id != null) {
                     binding.imgSelectIcon.setImageResource(icon_id)
@@ -155,6 +207,7 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
             val dateparts = binding.txtEditReminderDate.text.split(".")
             val timeparts = binding.txtEditReminderTime.text.split(":")
             reminderCalendar = GregorianCalendar(dateparts[2].toInt(), dateparts[1].toInt() - 1, dateparts[0].toInt(), timeparts[0].toInt(), timeparts[1].toInt(), 0)
+            val locationparts = binding.txtLocationInfo.text.split(", ")
 
             val reminderItem = ReminderTable(
                 null,
@@ -163,8 +216,8 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                 reminder_time =  reminderCalendar.getTime(),
                 creation_time = Calendar.getInstance().time,
                 reminder_seen = 0,
-                location_x = binding.txtEditReminderX.text.toString(),
-                location_y = binding.txtEditReminderY.text.toString(),
+                latitude = locationparts[0].toFloat(),
+                longitude = locationparts[1].toFloat(),
                 icon = binding.imgSelectIcon.getTag() as Int?,
                 workmanager_uuid = null
             )
@@ -182,8 +235,8 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                     }
                     else {
                         var parsedMessage = "${reminderItem.message} on ${dateformatter.format(reminderCalendar.getTime())} ${timeformatter.format(reminderCalendar.getTime())}"
-                        if (reminderItem.location_x != null && reminderItem.location_y != null) {
-                            parsedMessage = "$parsedMessage at ${reminderItem.location_x}, ${reminderItem.location_y}"
+                        if (reminderItem.latitude != null && reminderItem.longitude != null) {
+                            parsedMessage = "$parsedMessage at ${reminderItem.latitude}, ${reminderItem.longitude}"
                         }
                         MainActivity.cancelReminder(applicationContext, db.reminderDAO().getNotificationUUID(reminderID))
                         reminderItem.workmanager_uuid = MainActivity.setReminderWithWorkManager(
@@ -199,8 +252,8 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                 else {
                     val uuid = db.reminderDAO().insert(reminderItem).toInt()
                     var parsedMessage = "${reminderItem.message} on ${dateformatter.format(reminderCalendar.getTime())} ${timeformatter.format(reminderCalendar.getTime())}"
-                    if (reminderItem.location_x != null && reminderItem.location_y != null) {
-                        parsedMessage = "$parsedMessage at ${reminderItem.location_x}, ${reminderItem.location_y}"
+                    if (reminderItem.latitude != null && reminderItem.longitude != null) {
+                        parsedMessage = "$parsedMessage at ${reminderItem.latitude}, ${reminderItem.longitude}"
                     }
                     db.reminderDAO().setNotificationUUID(uuid,
                         MainActivity.setReminderWithWorkManager(applicationContext,
@@ -230,6 +283,38 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
 
             // startActivity(Intent(applicationContext, MainActivity::class.java))
             finish()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        binding.txtLocationInfo.text = ""
+
+        locations = listOf<LocationTable>()
+        locationNames = mutableListOf()
+        val locationAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            locationNames)
+        binding.txtEditReminderLocation.setAdapter(locationAdapter)
+
+        AsyncTask.execute {
+            val db = Room.databaseBuilder(
+                applicationContext,
+                AppDB::class.java,
+                getString(R.string.dbFileName)
+            ).fallbackToDestructiveMigration().build()
+            val uid = applicationContext.getSharedPreferences(
+                getString(R.string.sharedPreference),
+                Context.MODE_PRIVATE
+            ).getInt("UserID", -1)
+            locations = db.locationDAO().getLocationsByUserSorted(uid)
+            locationNames = db.locationDAO().getNames(uid)
+            db.close()
+            locationAdapter.clear()
+            locationAdapter.addAll(locationNames)
+            locationAdapter.notifyDataSetChanged()
         }
     }
 

@@ -18,9 +18,9 @@ data class ReminderTable(
     @ColumnInfo(name="profile_id") var profile_id: Int,
     @ColumnInfo(name="workmanager_uuid") var workmanager_uuid: UUID?,
     @ColumnInfo(name="message") var message:String,
-    @ColumnInfo(name="location_x") var location_x:String?,
-    @ColumnInfo(name="location_y") var location_y:String?,
-    @ColumnInfo(name="reminder_time") var reminder_time:Date,
+    @ColumnInfo(name="latitude") var latitude:Float?,
+    @ColumnInfo(name="longitude") var longitude:Float?,
+    @ColumnInfo(name="reminder_time") var reminder_time:Date?,
     @ColumnInfo(name="creation_time") var creation_time: Date,
     @ColumnInfo(name="reminder_seen") var reminder_seen:Int,
     @ColumnInfo(name="icon") var icon: Int?

@@ -25,8 +25,8 @@ class ReminderAdaptor(context: Context, private val list:List<ReminderTable>): B
         // TODO: Refactor properly, now just testing
         row.txtReminderMsg.text=list[position].message
         row.txtReminderTime.text=formatter.format(list[position].reminder_time)
-        row.txtReminderX.text=list[position].location_x.toString()
-        row.txtReminderY.text=list[position].location_y.toString()
+        row.txtReminderX.text=list[position].latitude.toString()
+        row.txtReminderY.text=list[position].longitude.toString()
         val icon_id = list[position].icon
         if (icon_id != null) {
             row.imgReminderIcon.setImageResource(icon_id)

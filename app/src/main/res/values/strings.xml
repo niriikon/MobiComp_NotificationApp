@@ -13,6 +13,7 @@
     <string name="dbFileName" translatable="false">com.mobicomp_notificationapp</string>
     <string name="newuser_button">Create new user</string>
     <string name="modifyuser_button">Edit user profile</string>
+    <string name="title_activity_maps">Map</string>
     <string-array name="icons_array">
         <item>Default</item>
         <item>Important</item>

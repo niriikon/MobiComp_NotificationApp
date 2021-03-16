@@ -52,13 +52,13 @@
         app:layout_constraintTop_toBottomOf="@+id/txtEditReminderTime"
         app:layout_constraintVertical_bias="0.08" />
 
-    <EditText
-        android:id="@+id/txtEditReminderX"
+    <AutoCompleteTextView
+        android:id="@+id/txtEditReminderLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Location X"
-        android:inputType="textShortMessage"
+        android:hint="Location"
+        android:completionThreshold="0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -66,21 +66,34 @@
         app:layout_constraintTop_toBottomOf="@+id/txtEditReminderDate"
         app:layout_constraintVertical_bias="0.1" />
 
-    <EditText
-        android:id="@+id/txtEditReminderY"
+    <TextView
+        android:id="@+id/txtLocationInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Location Y"
-        android:inputType="textShortMessage"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderX"
-        app:layout_constraintVertical_bias="0.125" />
+        app:layout_constraintStart_toStartOf="@+id/txtEditReminderLocation"
+        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderLocation"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.05"
+        app:layout_constraintVertical_bias="0.03" />
 
-    <Button
+    <ImageView
+        android:id="@+id/imgOpenMaps"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:insetLeft="12dp"
+        android:insetTop="12dp"
+        android:insetRight="12dp"
+        android:insetBottom="12dp"
+        app:layout_constraintBottom_toBottomOf="@id/txtEditReminderLocation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.3"
+        app:layout_constraintStart_toEndOf="@+id/txtEditReminderLocation"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.98"
+        app:srcCompat="@drawable/ic_baseline_edit_location_24" />
+
+        <Button
         android:id="@+id/btnEditReminderAccept"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -90,7 +103,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.733"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderY"
+        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderLocation"
         app:layout_constraintVertical_bias="0.500" />
 
     <Button
@@ -103,7 +116,7 @@
         app:layout_constraintEnd_toStartOf="@+id/btnEditReminderAccept"
         app:layout_constraintHorizontal_bias="0.524"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderY"
+        app:layout_constraintTop_toBottomOf="@+id/txtEditReminderLocation"
         app:layout_constraintVertical_bias="0.500" />
 
     <Button
@@ -141,6 +154,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imgSelectIcon"
         app:layout_constraintVertical_bias="0.03" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
