@@ -139,16 +139,17 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         binding.txtEditReminderTime.isClickable=true
 
         binding.txtEditReminderDate.setOnClickListener {
-            // TODO: Set DatePickerDialog to use firstDayOfWeek=Calendar.MONDAY somehow (or by Locale)
             reminderCalendar = GregorianCalendar.getInstance()
             if (binding.txtEditReminderDate.text.toString() != "") {
                 val dateparts = binding.txtEditReminderDate.text.split(".")
                 reminderCalendar.set(dateparts[2].toInt(), dateparts[1].toInt() -1, dateparts[0].toInt())
             }
-            DatePickerDialog(this, this,
+            val dpDialog = DatePickerDialog(this, this,
                     reminderCalendar.get(Calendar.YEAR),
                     reminderCalendar.get(Calendar.MONTH),
-                    reminderCalendar.get(Calendar.DAY_OF_MONTH)).show()
+                    reminderCalendar.get(Calendar.DAY_OF_MONTH))
+            dpDialog.datePicker.firstDayOfWeek = Calendar.MONDAY
+            dpDialog.show()
         }
 
         binding.txtEditReminderTime.setOnClickListener {
@@ -231,26 +232,72 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
 
         // Update reminder instance if already exists, otherwise insert new one.
         binding.btnEditReminderAccept.setOnClickListener {
-            if (binding.txtEditReminderTime.text.isEmpty() || binding.txtEditReminderMsg.text.isEmpty()) {
-                val toast = Toast.makeText(applicationContext, "Required field empty!", Toast.LENGTH_LONG)
+            var errors: MutableList<String> = mutableListOf()
+
+            if (binding.tglTime.isChecked && (binding.txtEditReminderTime.text.isEmpty() || binding.txtEditReminderDate.text.isEmpty())) {
+                errors.add("datetime")
+            }
+            if (binding.tglLocation.isChecked && binding.txtLocationInfo.text.isEmpty()) {
+                errors.add("location")
+            }
+            if (binding.txtEditReminderMsg.text.isEmpty()) {
+                errors.add("message")
+            }
+
+            if (errors.size > 0) {
+                var errorMessage = errors[0]
+                var i = 1
+                while (i < errors.size) {
+                    errorMessage = "$errorMessage, ${errors[i]}"
+                    i += 1
+                }
+                val toast = Toast.makeText(applicationContext, "Required field(s) empty! ($errorMessage)", Toast.LENGTH_LONG)
                 toast.show()
                 return@setOnClickListener
             }
 
-            val dateparts = binding.txtEditReminderDate.text.split(".")
-            val timeparts = binding.txtEditReminderTime.text.split(":")
-            reminderCalendar = GregorianCalendar(dateparts[2].toInt(), dateparts[1].toInt() - 1, dateparts[0].toInt(), timeparts[0].toInt(), timeparts[1].toInt(), 0)
-            val locationparts = binding.txtLocationInfo.text.split(", ")
+            val reminder_time_in: Date?
+            val location_in: List<Float?>
+
+            if (!binding.txtEditReminderDate.text.isEmpty() && !binding.txtEditReminderTime.text.isEmpty()) {
+                val dateparts = binding.txtEditReminderDate.text.split(".")
+                val timeparts = binding.txtEditReminderTime.text.split(":")
+                reminderCalendar = GregorianCalendar(dateparts[2].toInt(), dateparts[1].toInt() - 1, dateparts[0].toInt(), timeparts[0].toInt(), timeparts[1].toInt(), 0)
+                reminder_time_in = reminderCalendar.getTime()
+            }
+            else {
+                reminder_time_in = null
+            }
+            if (!binding.txtLocationInfo.text.isEmpty()) {
+                val location_parts = binding.txtLocationInfo.text.split(", ")
+                location_in = listOf(location_parts[0].toFloat(), location_parts[1].toFloat())
+            }
+            else {
+                location_in = listOf(null, null)
+            }
+
+            val use_loc_in: Int
+            val use_time_in: Int
+            when (binding.tglLocation.isChecked) {
+                false -> use_loc_in = 0
+                true -> use_loc_in = 1
+            }
+            when (binding.tglTime.isChecked) {
+                false -> use_time_in = 0
+                true -> use_time_in = 1
+            }
 
             val reminderItem = ReminderTable(
                 null,
                 profile_id = applicationContext.getSharedPreferences(getString(R.string.sharedPreference), Context.MODE_PRIVATE).getInt("UserID", -1),
                 message = binding.txtEditReminderMsg.text.toString(),
-                reminder_time =  reminderCalendar.getTime(),
+                reminder_time =  reminder_time_in,
                 creation_time = Calendar.getInstance().time,
                 reminder_seen = 0,
-                latitude = locationparts[0].toFloat(),
-                longitude = locationparts[1].toFloat(),
+                latitude = location_in[0],
+                longitude = location_in[1],
+                use_location = use_loc_in,
+                use_time = use_time_in,
                 icon = binding.imgSelectIcon.getTag() as Int?,
                 workmanager_uuid = null
             )
@@ -267,31 +314,46 @@ class ReminderActivity : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                         reminderItem.workmanager_uuid = db.reminderDAO().getNotificationUUID(reminderID)
                     }
                     else {
-                        var parsedMessage = "${reminderItem.message} on ${dateformatter.format(reminderCalendar.getTime())} ${timeformatter.format(reminderCalendar.getTime())}"
-                        if (reminderItem.latitude != null && reminderItem.longitude != null) {
+                        var parsedMessage = reminderItem.message
+                        if (binding.tglTime.isChecked) {
+                            parsedMessage = "$parsedMessage on ${dateformatter.format(reminderCalendar.getTime())} ${timeformatter.format(reminderCalendar.getTime())}"
+                        }
+                        if (binding.tglLocation.isChecked) {
                             parsedMessage = "$parsedMessage at ${reminderItem.latitude}, ${reminderItem.longitude}"
                         }
-                        MainActivity.cancelReminder(applicationContext, db.reminderDAO().getNotificationUUID(reminderID))
-                        reminderItem.workmanager_uuid = MainActivity.setReminderWithWorkManager(
-                            applicationContext,
-                            reminderID,
-                            reminderCalendar.timeInMillis,
-                            parsedMessage,
-                            "Upcoming event:",
-                            reminderItem.icon)
+
+                        if (binding.tglTime.isChecked) {
+                            MainActivity.cancelReminder(applicationContext, db.reminderDAO().getNotificationUUID(reminderID))
+                            reminderItem.workmanager_uuid = MainActivity.setReminderWithWorkManager(
+                                    applicationContext,
+                                    reminderID,
+                                    reminderCalendar.timeInMillis,
+                                    parsedMessage,
+                                    "Upcoming event:",
+                                    reminderItem.icon)
+                        }
                     }
                     db.reminderDAO().update(reminderItem)
                 }
                 else {
                     val uuid = db.reminderDAO().insert(reminderItem).toInt()
-                    var parsedMessage = "${reminderItem.message} on ${dateformatter.format(reminderCalendar.getTime())} ${timeformatter.format(reminderCalendar.getTime())}"
-                    if (reminderItem.latitude != null && reminderItem.longitude != null) {
+                    var parsedMessage = reminderItem.message
+                    if (binding.tglTime.isChecked) {
+                        parsedMessage = "$parsedMessage on ${dateformatter.format(reminderCalendar.getTime())} ${timeformatter.format(reminderCalendar.getTime())}"
+                    }
+                    if (binding.tglLocation.isChecked) {
                         parsedMessage = "$parsedMessage at ${reminderItem.latitude}, ${reminderItem.longitude}"
                     }
-                    db.reminderDAO().setNotificationUUID(uuid,
-                        MainActivity.setReminderWithWorkManager(applicationContext,
-                            uuid,
-                            reminderCalendar.timeInMillis, parsedMessage, "Upcoming event:", reminderItem.icon))
+
+                    if (binding.tglTime.isChecked) {
+                        db.reminderDAO().setNotificationUUID(uuid,
+                            MainActivity.setReminderWithWorkManager(applicationContext,
+                                uuid,
+                                reminderCalendar.timeInMillis, parsedMessage, "Upcoming event:", reminderItem.icon))
+                    }
+                    // else if (binding.tglLocation.isChecked) {
+                        // db.reminderDAO().setNotificationUUID(uuid, setReminderwithlocationsomethins)
+                    // }
                 }
                 db.close()
             }

@@ -5,8 +5,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.content.Intent
 import android.os.AsyncTask
+import android.text.InputType
 import android.util.Log
 import android.view.View
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.room.Room
 import com.mobicomp_notificationapp.databinding.ActivityProfileBinding
 import com.mobicomp_notificationapp.db.AppDB
@@ -120,5 +124,12 @@ class ProfileActivity : AppCompatActivity() {
             // startActivity(Intent(applicationContext, LoginActivity::class.java))
             finish()
         }
+
+        /*
+        binding.btnEditUserLocation.setOnClickListener {
+            val intent = Intent(applicationContext, MapsActivity::class.java)
+            intent.putExtra("origin", "profile")
+            startActivity(intent)
+        }*/
     }
 }

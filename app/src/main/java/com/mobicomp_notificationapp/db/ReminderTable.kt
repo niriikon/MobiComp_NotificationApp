@@ -17,11 +17,13 @@ data class ReminderTable(
     @PrimaryKey(autoGenerate=true) var id: Int?,
     @ColumnInfo(name="profile_id") var profile_id: Int,
     @ColumnInfo(name="workmanager_uuid") var workmanager_uuid: UUID?,
-    @ColumnInfo(name="message") var message:String,
-    @ColumnInfo(name="latitude") var latitude:Float?,
-    @ColumnInfo(name="longitude") var longitude:Float?,
-    @ColumnInfo(name="reminder_time") var reminder_time:Date?,
+    @ColumnInfo(name="message") var message: String,
+    @ColumnInfo(name="latitude") var latitude: Float?,
+    @ColumnInfo(name="longitude") var longitude: Float?,
+    @ColumnInfo(name="reminder_time") var reminder_time: Date?,
     @ColumnInfo(name="creation_time") var creation_time: Date,
-    @ColumnInfo(name="reminder_seen") var reminder_seen:Int,
+    @ColumnInfo(name="reminder_seen") var reminder_seen: Int, // so far unused
+    @ColumnInfo(name="use_time") var use_time: Int,
+    @ColumnInfo(name="use_location") var use_location: Int,
     @ColumnInfo(name="icon") var icon: Int?
 )

@@ -45,6 +45,18 @@ interface ReminderDAO {
     @Query("SELECT reminder_time FROM reminders WHERE id = :id")
     fun getTime(id: Int): Date
 
+    @Query("SELECT use_location FROM reminders WHERE id = :id")
+    fun getUseLocation(id: Int): Int
+
+    @Query("SELECT use_time FROM reminders WHERE id = :id")
+    fun getUseTime(id: Int): Int
+
+    @Query("UPDATE reminders SET use_location = :status WHERE id = :id")
+    fun setUseLocation(id: Int, status: Int)
+
+    @Query("UPDATE reminders SET use_time = :status WHERE id = :id")
+    fun setUseTime(id: Int, status: Int)
+
     @Query("DELETE FROM reminders WHERE id = :rem_id")
     fun delete(rem_id: Int)
 }

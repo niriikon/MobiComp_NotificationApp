@@ -342,11 +342,11 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("uid", uid)
             intent.putExtra("message", message)
 
-            // create a pending intent to a  future action with a uniquie request code i.e uid
+            // create a pending intent to a  future action with a unique request code i.e uid
             val pendingIntent =
                     PendingIntent.getBroadcast(context, uid, intent, PendingIntent.FLAG_ONE_SHOT)
 
-            //create a service to moniter and execute the fure action.
+            //create a service to monitor and execute the future action.
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             alarmManager.setExact(AlarmManager.RTC, timeInMillis, pendingIntent)
         }
